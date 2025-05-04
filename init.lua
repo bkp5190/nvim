@@ -31,4 +31,5 @@ require("lazy").setup({
 	require("plugins.incline"),
 	require("plugins.dap"),
 	require("plugins.lazydev"),
+	require("plugins.neotest"),
 })
