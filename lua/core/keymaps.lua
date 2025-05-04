@@ -80,3 +80,11 @@ map("n", "<leader>lw", "<cmd>set wrap!<CR>", { noremap = true, silent = true })
 -- Stay in indent mode
 map("v", "<", "<gv", { noremap = true, silent = true })
 map("v", ">", ">gv", { noremap = true, silent = true })
+
+-- Dap keymaps
+map(
+	"n",
+	"<leader>du",
+	'<cmd>lua require("dapui").toggle()<CR>',
+	{ desc = "Toggle DAP UI", noremap = true, silent = true }
+)

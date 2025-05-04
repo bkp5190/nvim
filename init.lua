@@ -26,7 +26,9 @@ require("lazy").setup({
 	require("plugins.trouble"),
 	require("plugins.misc"),
 	require("plugins.git-signs"),
-	require("plugins.neotest"),
-	require("plugins.neotest-go"),
 	require("plugins.harpoon"),
+	require("plugins.fugitive"),
+	require("plugins.incline"),
+	require("plugins.dap"),
+	require("plugins.lazydev"),
 })
