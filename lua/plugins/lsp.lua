@@ -10,6 +10,7 @@ return {
       pyright = {},    -- Python LSP
       gopls = {},      -- Go LSP
       ruff = {},       -- Optional Python linter LSP
+      lua_language_server = {},
       lua_ls = {       -- Lua LSP for config
         settings = {
           Lua = {

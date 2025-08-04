@@ -33,4 +33,5 @@ require("lazy").setup({
 	require("plugins.quarto"),
 	require("plugins.pyworks"),
 	require("plugins.jupytext"),
+	require("plugins.conform")
 })

@@ -7,7 +7,7 @@ return {
 			-- Customize or remove this keymap to your liking
 			"<leader>f",
 			function()
-				require("conform").format({ async = true })
+				require("conform").format()
 			end,
 			mode = "",
 			desc = "Format buffer",
@@ -20,7 +20,7 @@ return {
 		-- Define your formatters
 		formatters_by_ft = {
 			lua = { "stylua" },
-			python = { "isort", "black" },
+			python = { "isort", "black", "ruff_format" },
 			go = { "gopls" },
 		},
 		-- Set default options
