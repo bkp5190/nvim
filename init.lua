@@ -22,7 +22,6 @@ require("lazy").setup({
 	require("plugins.conform"),
 	require("plugins.misc"),
 	require("plugins.git-signs"),
-	require("plugins.harpoon"),
 	require("plugins.fugitive"),
 	require("plugins.incline"),
 	require("plugins.dap"),
@@ -30,8 +29,4 @@ require("lazy").setup({
 	require("plugins.lazydev"),
 	require("plugins.neotest"),
 	require("plugins.snacks"),
-	require("plugins.quarto"),
-	require("plugins.pyworks"),
-	require("plugins.jupytext"),
-	require("plugins.conform")
 })
