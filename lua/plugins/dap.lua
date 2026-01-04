@@ -13,7 +13,34 @@ return {
 
 		require("dap-go").setup()
 		require("dapui").setup()
-		require("dap-python").setup("uv")
+		
+		-- Setup Python debugging with dynamic path detection
+		local function get_python_path()
+			local uv_venv = os.getenv("VIRTUAL_ENV")
+			if uv_venv and uv_venv ~= "" then
+				return uv_venv .. "/bin/python"
+			end
+			
+			local handle = io.popen("poetry env info -p 2>/dev/null")
+			if handle then
+				local venv = handle:read("*a"):gsub("%s+", "")
+				handle:close()
+				if venv ~= "" then
+					return venv .. "/bin/python"
+				end
+			end
+			
+			local local_venv = vim.fn.getcwd() .. "/.venv"
+			if vim.fn.isdirectory(local_venv) == 1 then
+				return local_venv .. "/bin/python"
+			end
+			
+			return "python3"
+		end
+		
+		require("dap-python").setup(get_python_path(), {
+			console = "integratedTerminal",
+		})
 		-- Auto open/close UI
 		dap.listeners.before.attach.dapui_config = function()
 			dapui.open()

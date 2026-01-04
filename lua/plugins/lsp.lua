@@ -49,21 +49,49 @@ return {
           )
         end, "Toggle Inlay Hints")
       end
+
+      if client.name == "zls" then
+        vim.api.nvim_create_autocmd("BufWritePre", {
+          buffer = bufnr,
+          callback = function()
+            vim.lsp.buf.format({ 
+              async = false,
+              filter = function(c)
+                return c.name == "zls"
+              end,
+            })
+          end,
+        })
+      end
     end
 
     ------------------------------------------------------------------
-    -- Python interpreter (Poetry-aware)
+    -- Python interpreter (Poetry, UV, and venv-aware)
     ------------------------------------------------------------------
-    local function get_poetry_python()
+    local function get_python_path()
+      -- Check for UV environment first (VIRTUAL_ENV is set by uv venv activate)
+      local uv_venv = os.getenv("VIRTUAL_ENV")
+      if uv_venv and uv_venv ~= "" then
+        return uv_venv .. "/bin/python"
+      end
+      
+      -- Check for Poetry environment
       local handle = io.popen("poetry env info -p 2>/dev/null")
-      if not handle then
-        return "python3"
+      if handle then
+        local venv = handle:read("*a"):gsub("%s+", "")
+        handle:close()
+        if venv ~= "" then
+          return venv .. "/bin/python"
+        end
       end
-      local venv = handle:read("*a"):gsub("%s+", "")
-      handle:close()
-      if venv ~= "" then
-        return venv .. "/bin/python"
+      
+      -- Check for .venv in current directory
+      local local_venv = vim.fn.getcwd() .. "/.venv"
+      if vim.fn.isdirectory(local_venv) == 1 then
+        return local_venv .. "/bin/python"
       end
+      
+      -- Fallback to system python
       return "python3"
     end
 
@@ -75,7 +103,13 @@ return {
       on_attach = on_attach,
       settings = {
         python = {
-          pythonPath = get_poetry_python(),
+          pythonPath = get_python_path(),
+          analysis = {
+            autoSearchPaths = true,
+            diagnosticMode = "openFilesOnly",
+            useLibraryCodeForTypes = true,
+            typeCheckingMode = "basic",
+          },
         },
       },
     })
@@ -102,6 +136,18 @@ return {
       },
     })
 
+    vim.lsp.config("zls", {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      settings = {
+        zls = {
+          enable_inlay_hints = true,
+          enable_snippets = true,
+          warn_style = true,
+        },
+      },
+    })
+
     ------------------------------------------------------------------
     -- Enable servers
     ------------------------------------------------------------------
@@ -109,6 +155,37 @@ return {
       "pyright",
       "ruff",
       "lua_ls",
+      "zls",
+    })
+
+    ------------------------------------------------------------------
+    -- Auto-restart Python LSP when entering Python files
+    ------------------------------------------------------------------
+    vim.api.nvim_create_autocmd("BufEnter", {
+      pattern = "*.py",
+      callback = function()
+        local current_python = get_python_path()
+        -- Restart pyright with new Python path if it changed
+        vim.lsp.stop_client("pyright")
+        vim.lsp.start({
+          name = "pyright",
+          cmd = { "pyright-langserver", "--stdio" },
+          root_dir = vim.fs.root(0, { "pyproject.toml", "setup.py", ".git" }),
+          capabilities = capabilities,
+          on_attach = on_attach,
+          settings = {
+            python = {
+              pythonPath = current_python,
+              analysis = {
+                autoSearchPaths = true,
+                diagnosticMode = "openFilesOnly",
+                useLibraryCodeForTypes = true,
+                typeCheckingMode = "basic",
+              },
+            },
+          },
+        })
+      end,
     })
   end,
 }

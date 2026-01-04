@@ -1,5 +1,6 @@
 require("core.options")
 require("core.keymaps")
+require("core.virtual_env")
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -29,4 +30,5 @@ require("lazy").setup({
 	require("plugins.lazydev"),
 	require("plugins.neotest"),
 	require("plugins.snacks"),
+	require("plugins.python"),
 })

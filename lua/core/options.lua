@@ -18,4 +18,4 @@ vim.diagnostic.config({
 	update_in_insert = false, -- update diagnostics only in normal mode
 	severity_sort = true,  -- sort diagnostics by severity
 })
-vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
+vim.g.python3_host_prog = vim.fn.exepath("python3")
