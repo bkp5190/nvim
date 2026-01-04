@@ -19,11 +19,9 @@ return {
         vim.keymap.set(modes, keys, func, { buffer = bufnr, desc = desc })
       end
 
-      map("<leader>D", vim.lsp.buf.type_definition, "Type Definition")
       map("<leader>ws", vim.lsp.buf.workspace_symbol, "Workspace Symbols")
       map("<leader>re", vim.lsp.buf.rename, "Rename")
       map("<leader>ca", vim.lsp.buf.code_action, "Code Action", { "n", "x" })
-      map("gD", vim.lsp.buf.declaration, "Goto Declaration")
 
       -- Document highlight
       if client.supports_method("textDocument/documentHighlight") then

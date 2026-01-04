@@ -26,7 +26,7 @@ return {
 				},
 			},
 		},
-		quickfile = { enabled = false },
+		quickfile = { enabled = true },
 		scope = { enabled = true },
 		scroll = { enabled = true },
 		statuscolumn = { enabled = true },
@@ -41,35 +41,28 @@ return {
 	keys = {
 		-- Top Pickers & Explorer
 		{
-			"<leader><space>",
+			"<leader>sf",
 			function()
 				Snacks.picker.smart()
 			end,
 			desc = "Smart Find Files",
 		},
 		{
-			"<leader>,",
+			"<leader>sb",
 			function()
 				Snacks.picker.buffers()
 			end,
 			desc = "Buffers",
 		},
 		{
-			"<leader>/",
-			function()
-				Snacks.picker.grep()
-			end,
-			desc = "Grep",
-		},
-		{
-			"<leader>:",
+			"<leader>sc",
 			function()
 				Snacks.picker.command_history()
 			end,
 			desc = "Command History",
 		},
 		{
-			"<leader>n",
+			"<leader>sn",
 			function()
 				Snacks.picker.notifications()
 			end,
@@ -103,13 +96,6 @@ return {
 				Snacks.picker.files({ cwd = vim.fn.stdpath("config") })
 			end,
 			desc = "Find Config File",
-		},
-		{
-			"<leader>ff",
-			function()
-				Snacks.picker.files()
-			end,
-			desc = "Find Files",
 		},
 		{
 			"<leader>fg",
@@ -242,13 +228,6 @@ return {
 			desc = "Buffer Lines",
 		},
 		{
-			"<leader>sc",
-			function()
-				Snacks.picker.command_history()
-			end,
-			desc = "Command History",
-		},
-		{
 			"<leader>sC",
 			function()
 				Snacks.picker.commands()
@@ -333,14 +312,14 @@ return {
 			desc = "Search for Plugin Spec",
 		},
 		{
-			"<leader>sq",
+			"<leader>ql",
 			function()
 				Snacks.picker.qflist()
 			end,
 			desc = "Quickfix List",
 		},
 		{
-			"<leader>sR",
+			"<leader>rs",
 			function()
 				Snacks.picker.resume()
 			end,
@@ -463,13 +442,6 @@ return {
 			mode = { "n", "v" },
 		},
 		{
-			"<leader>gg",
-			function()
-				Snacks.lazygit()
-			end,
-			desc = "Lazygit",
-		},
-		{
 			"<leader>un",
 			function()
 				Snacks.notifier.hide()
@@ -547,7 +519,7 @@ return {
 
 				-- Create some toggle mappings
 				Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")
-				Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>uw")
+				Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>lw")
 				Snacks.toggle.option("relativenumber", { name = "Relative Number" }):map("<leader>uL")
 				Snacks.toggle.diagnostics():map("<leader>ud")
 				Snacks.toggle.line_number():map("<leader>ul")
