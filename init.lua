@@ -26,4 +26,5 @@ require("lazy").setup({
 	require("plugins.snacks"),
 	require("plugins.python"),
 	require("plugins.copilot"),
+	require("plugins.noice"),
 })
