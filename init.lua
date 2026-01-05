@@ -19,11 +19,11 @@ require("lazy").setup({
 	require("plugins.conform"),
 	require("plugins.misc"),
 	require("plugins.git-signs"),
-	require("plugins.incline"),
 	require("plugins.dap"),
 	require("plugins.bufferline"),
 	require("plugins.lazydev"),
 	require("plugins.neotest"),
 	require("plugins.snacks"),
 	require("plugins.python"),
+	require("plugins.copilot"),
 })

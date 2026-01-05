@@ -19,3 +19,4 @@ vim.diagnostic.config({
 	severity_sort = true,  -- sort diagnostics by severity
 })
 vim.g.python3_host_prog = vim.fn.exepath("python3")
+vim.o.updatetime = 300  -- faster CursorHold for signature help

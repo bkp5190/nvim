@@ -15,7 +15,7 @@ return {
         ".env",
       },
       -- Auto activate virtual environment when found
-      auto_refresh = true,
+      auto_refresh = false,
       search_venv_managers = {
         'poetry',
         'pipenv',

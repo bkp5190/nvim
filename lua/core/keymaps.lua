@@ -29,7 +29,7 @@ map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
 
 -- Window management
 map("n", "<leader>v", "<C-w>v", { noremap = true, silent = true }) -- split window vertically
-map("n", "<leader>h", "<C-w>s", { noremap = true, silent = true }) -- split window horizontally
+-- map("n", "<leader>h", "<C-w>s", { noremap = true, silent = true }) -- split window horizontally
 map("n", "<leader>se", "<C-w>=", { noremap = true, silent = true }) -- make split windows equal width & height
 map("n", "<leader>xs", ":close<CR>", { noremap = true, silent = true }) -- close current split window
 
