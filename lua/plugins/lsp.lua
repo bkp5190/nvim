@@ -38,46 +38,11 @@ return {
         })
       end
 
-      -- Inlay hints
-      if client.supports_method("textDocument/inlayHint") then
-        map("<leader>th", function()
-          vim.lsp.inlay_hint.enable(
-            not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }),
-            { bufnr = bufnr }
-          )
-        end, "Toggle Inlay Hints")
-      end
-
-      -- Signature help (non-focusable floating window)
-      if client.supports_method("textDocument/signatureHelp") then
-        local sig_help_handler = vim.lsp.with(vim.lsp.handlers.signature_help, {
-          border = "rounded",
-          focusable = false,
-          silent = true,
-        })
-        
-        map("<C-s>", function()
-          vim.lsp.buf.signature_help({ handler = sig_help_handler })
-        end, "Signature Help", "i")
-        
-        vim.api.nvim_create_autocmd("CursorHoldI", {
-          buffer = bufnr,
-          callback = function()
-            local line = vim.api.nvim_get_current_line()
-            local col = vim.api.nvim_win_get_cursor(0)[2]
-            local before_cursor = line:sub(1, col)
-            if before_cursor:match("[%(,]%s*$") then
-              vim.lsp.buf.signature_help({ handler = sig_help_handler })
-            end
-          end,
-        })
-      end
-
       if client.name == "zls" then
         vim.api.nvim_create_autocmd("BufWritePre", {
           buffer = bufnr,
           callback = function()
-            vim.lsp.buf.format({ 
+            vim.lsp.buf.format({
               async = false,
               filter = function(c)
                 return c.name == "zls"
@@ -95,7 +60,7 @@ return {
 
     local function get_python_path()
       local cwd = vim.fn.getcwd()
-      
+
       -- Return cached value if available
       if python_path_cache[cwd] then
         return python_path_cache[cwd]
@@ -121,10 +86,10 @@ return {
           end
         end
       end
-      
+
       -- Fallback to system python
       python_path = python_path or "python3"
-      
+
       -- Cache the result
       python_path_cache[cwd] = python_path
       return python_path
