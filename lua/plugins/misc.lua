@@ -18,4 +18,13 @@ return {
 		dependencies = { "nvim-lua/plenary.nvim" },
 		opts = { signs = false },
 	},
+	{
+		"MeanderingProgrammer/render-markdown.nvim",
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		ft = { "markdown" },
+		opts = { enabled = true },
+		keys = {
+			{ "<leader>md", "<cmd>RenderMarkdown toggle<cr>", desc = "Toggle Markdown Render" },
+		},
+	},
 }

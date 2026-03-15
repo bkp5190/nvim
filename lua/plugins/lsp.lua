@@ -19,6 +19,11 @@ return {
         vim.keymap.set(modes, keys, func, { buffer = bufnr, desc = desc })
       end
 
+      map("gd", vim.lsp.buf.definition, "Go to Definition")
+      map("gD", vim.lsp.buf.declaration, "Go to Declaration")
+      map("gi", vim.lsp.buf.implementation, "Go to Implementation")
+      map("gr", vim.lsp.buf.references, "Go to References")
+      map("K",  vim.lsp.buf.hover, "Hover Docs")
       map("<leader>ws", vim.lsp.buf.workspace_symbol, "Workspace Symbols")
       map("<leader>re", vim.lsp.buf.rename, "Rename")
       map("<leader>ca", vim.lsp.buf.code_action, "Code Action", { "n", "x" })
@@ -38,6 +43,17 @@ return {
         })
       end
 
+      -- Inlay hints
+      if client.supports_method("textDocument/inlayHint") then
+        map("<leader>th", function()
+          vim.lsp.inlay_hint.enable(
+            not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }),
+            { bufnr = bufnr }
+          )
+        end, "Toggle Inlay Hints")
+      end
+
+
       if client.name == "zls" then
         vim.api.nvim_create_autocmd("BufWritePre", {
           buffer = bufnr,
@@ -51,48 +67,6 @@ return {
           end,
         })
       end
-    end
-
-    ------------------------------------------------------------------
-    -- Python interpreter (Poetry, UV, and venv-aware) with caching
-    ------------------------------------------------------------------
-    local python_path_cache = {}
-
-    local function get_python_path()
-      local cwd = vim.fn.getcwd()
-
-      -- Return cached value if available
-      if python_path_cache[cwd] then
-        return python_path_cache[cwd]
-      end
-
-      local python_path
-
-      -- Check for UV environment first (VIRTUAL_ENV is set by uv venv activate)
-      local uv_venv = os.getenv("VIRTUAL_ENV")
-      if uv_venv and uv_venv ~= "" then
-        python_path = uv_venv .. "/bin/python"
-      elseif vim.fn.isdirectory(cwd .. "/.venv") == 1 then
-        -- Check for .venv in current directory (fast, no subprocess)
-        python_path = cwd .. "/.venv/bin/python"
-      else
-        -- Check for Poetry environment (slow, only if no .venv found)
-        local handle = io.popen("poetry env info -p 2>/dev/null")
-        if handle then
-          local venv = handle:read("*a"):gsub("%s+", "")
-          handle:close()
-          if venv ~= "" then
-            python_path = venv .. "/bin/python"
-          end
-        end
-      end
-
-      -- Fallback to system python
-      python_path = python_path or "python3"
-
-      -- Cache the result
-      python_path_cache[cwd] = python_path
-      return python_path
     end
 
     ------------------------------------------------------------------
@@ -157,40 +131,6 @@ return {
       "zls",
     })
 
-    ------------------------------------------------------------------
-    -- Auto-restart Python LSP when entering Python files (only if path changed)
-    ------------------------------------------------------------------
-    local last_python_path = nil
-
-    vim.api.nvim_create_autocmd("BufEnter", {
-      pattern = "*.py",
-      callback = function()
-        local current_python = get_python_path()
-        -- Only restart pyright if the Python path actually changed
-        if current_python ~= last_python_path then
-          last_python_path = current_python
-          vim.lsp.stop_client("pyright")
-          vim.lsp.start({
-            name = "pyright",
-            cmd = { "pyright-langserver", "--stdio" },
-            root_dir = vim.fs.root(0, { "pyproject.toml", "setup.py", ".git" }),
-            capabilities = capabilities,
-            on_attach = on_attach,
-            settings = {
-              python = {
-                pythonPath = current_python,
-                analysis = {
-                  autoSearchPaths = true,
-                  diagnosticMode = "openFilesOnly",
-                  useLibraryCodeForTypes = true,
-                  typeCheckingMode = "basic",
-                },
-              },
-            },
-          })
-        end
-      end,
-    })
   end,
 }
 

@@ -18,13 +18,14 @@ return
           require("luasnip").lsp_expand(args.body)
         end,
       },
+      preselect = cmp.PreselectMode.None,
       mapping = cmp.mapping.preset.insert({
-        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+        ["<CR>"] = cmp.mapping.confirm({ select = false }),
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
-          elseif require("luasnip").expand_or_jumpable() then
-            require("luasnip").expand_or_jump()
+          elseif require("luasnip").locally_jumpable(1) then
+            require("luasnip").jump(1)
           else
             fallback()
           end
@@ -32,7 +33,7 @@ return
         ["<S-Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_prev_item()
-          elseif require("luasnip").jumpable(-1) then
+          elseif require("luasnip").locally_jumpable(-1) then
             require("luasnip").jump(-1)
           else
             fallback()
@@ -43,6 +44,7 @@ return
         ["<C-e>"] = cmp.mapping.abort(),
       }),
       sources = {
+        { name = "codeium", priority = 1100 },
         { name = "nvim_lsp", priority = 1000 },
         { name = "luasnip", priority = 750 },
         { name = "buffer", priority = 500 },
@@ -56,6 +58,7 @@ return
         format = function(entry, vim_item)
           -- Show source in completion menu
           vim_item.menu = ({
+            codeium = "[Codeium]",
             nvim_lsp = "[LSP]",
             luasnip = "[Snippet]",
             buffer = "[Buffer]",

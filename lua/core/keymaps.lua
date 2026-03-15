@@ -60,9 +60,18 @@ map("n", "<S-Tab>", ":bprev<CR>", { desc = "Previous buffer" })
 -- Keep last yanked when pasting
 map("v", "p", '"_dP', { noremap = true, silent = true })
 
+-- Paste and reindent to match surrounding code
+map("n", "p", "p`[=`]", { noremap = true, silent = true, desc = "Paste and reindent" })
+map("n", "P", "P`[=`]", { noremap = true, silent = true, desc = "Paste before and reindent" })
+
 -- Stay in indent mode
 map("v", "<", "<gv", { noremap = true, silent = true })
 map("v", ">", ">gv", { noremap = true, silent = true })
+
+-- Diagnostics
+map("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic" })
+map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+map("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
 
 -- Dap keymaps
 map(

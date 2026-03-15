@@ -1,30 +1,17 @@
 return {
   "ray-x/lsp_signature.nvim",
-  event = "LspAttach",
+  event = "InsertEnter",
   opts = {
-    bind = true, -- required
+    bind = true,
+    handler_opts = { border = "rounded" },
     floating_window = true,
-    hint_enable = false, -- IMPORTANT: disable inline hints (use inlay hints instead)
-    handler_opts = {
-      border = "rounded",
-    },
-
-    -- behavior tuning
-    always_trigger = true,
-    auto_close_after = nil, -- keep it open while typing
-    toggle_key = nil, -- no manual toggle
-
-    -- UX
-    floating_window_above_cur_line = true,
-    max_width = 80,
-    max_height = 12,
-
-    -- reduce noise
-    doc_lines = 0, -- don't show docstrings
-    fix_pos = false,
-    hi_parameter = "LspSignatureActiveParameter",
+    floating_window_above_cur_line = true, -- show above cursor, not below
+    hint_enable = false,                   -- no redundant inline virtual text
+    fix_pos = false,                       -- reposition as arguments change
+    auto_close_after = nil,                -- stay open while inside the call
+    toggle_key = "<C-s>",                  -- manually show/hide
+    move_cursor_key = nil,                 -- never move focus into the window
+    zindex = 200,
+    padding = " ",
   },
-  config = function(_, opts)
-    require("lsp_signature").setup(opts)
-  end,
 }
