@@ -19,6 +19,7 @@ return {
 			lua = { "stylua" },
 			python = { "isort", "ruff_format" },
 			go = { "gopls" },
+			rust = { "rustfmt" },
 		},
 		default_format_opts = {
 			lsp_format = "fallback",

@@ -121,6 +121,26 @@ return {
       },
     })
 
+    vim.lsp.config("rust_analyzer", {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      settings = {
+        ["rust-analyzer"] = {
+          cargo = { allFeatures = true },
+          checkOnSave = true,
+          check = { command = "clippy" },
+          procMacro = { enable = true },
+          inlayHints = {
+            bindingModeHints = { enable = true },
+            chainingHints = { enable = true },
+            closureReturnTypeHints = { enable = "always" },
+            parameterHints = { enable = true },
+            typeHints = { enable = true },
+          },
+        },
+      },
+    })
+
     ------------------------------------------------------------------
     -- Enable servers
     ------------------------------------------------------------------
@@ -129,6 +149,7 @@ return {
       "ruff",
       "lua_ls",
       "zls",
+      "rust_analyzer",
     })
 
   end,

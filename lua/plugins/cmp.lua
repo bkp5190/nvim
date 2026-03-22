@@ -44,7 +44,6 @@ return
         ["<C-e>"] = cmp.mapping.abort(),
       }),
       sources = {
-        { name = "codeium", priority = 1100 },
         { name = "nvim_lsp", priority = 1000 },
         { name = "luasnip", priority = 750 },
         { name = "buffer", priority = 500 },
@@ -58,7 +57,6 @@ return
         format = function(entry, vim_item)
           -- Show source in completion menu
           vim_item.menu = ({
-            codeium = "[Codeium]",
             nvim_lsp = "[LSP]",
             luasnip = "[Snippet]",
             buffer = "[Buffer]",
