@@ -1,8 +1,10 @@
 return {
   "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdate",
-  opts = {
-    ensure_installed = {
+  lazy = false,
+  config = function()
+    -- Install parsers (no-op if already installed)
+    require("nvim-treesitter").install({
       "python",
       "lua",
       "toml",
@@ -14,20 +16,21 @@ return {
       "vim",
       "vimdoc",
       "query",
-    },
-    highlight = { 
-      enable = true,
-      additional_vim_regex_highlighting = false,
-      use_languagetree = true,
-    },
-    indent = { enable = true },
-    auto_install = true,
-    context_commentstring = {
-      enable = true,
-      enable_autocmd = false,
-    },
-  },
-  config = function(_, opts)
-    require("nvim-treesitter.configs").setup(opts)
+      "rust",
+    })
+
+    -- Highlighting is now built into Neovim via vim.treesitter
+    vim.api.nvim_create_autocmd("FileType", {
+      callback = function()
+        pcall(vim.treesitter.start)
+      end,
+    })
+
+    -- Treesitter-based indentation (experimental)
+    vim.api.nvim_create_autocmd("FileType", {
+      callback = function()
+        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      end,
+    })
   end,
 }
