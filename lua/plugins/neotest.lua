@@ -2,6 +2,7 @@ return {
 	"nvim-neotest/neotest",
 	dependencies = {
 		"nvim-neotest/neotest-python",
+		"rouge8/neotest-rust",
 		"nvim-neotest/nvim-nio",
 		"nvim-lua/plenary.nvim",
 		"antoinemadec/FixCursorHold.nvim",
@@ -21,9 +22,10 @@ return {
 			},
 		}, neotest_ns)
 
-		-- Setup neotest with Python adapter
+		-- Setup neotest with adapters
 		neotest.setup({
 			adapters = {
+				require("neotest-rust")({}),
 				require("neotest-python")({
 					args = { "--verbose" },
 					runner = "pytest",
