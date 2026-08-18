@@ -43,8 +43,9 @@ return {
         })
       end
 
-      -- Inlay hints
+      -- Inlay hints (on by default, matching IDE-style type hints)
       if client.supports_method("textDocument/inlayHint") then
+        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         map("<leader>th", function()
           vim.lsp.inlay_hint.enable(
             not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }),
@@ -72,7 +73,11 @@ return {
     ------------------------------------------------------------------
     -- LSP server definitions (NEW API)
     ------------------------------------------------------------------
-    vim.lsp.config("pyright", {
+    -- basedpyright (pyright fork) chosen over plain pyright: pyright's
+    -- open-source language server does not implement textDocument/inlayHint
+    -- at all (verified: server_capabilities.inlayHintProvider is nil), while
+    -- basedpyright does, which this config needs for IDE-style type hints.
+    vim.lsp.config("basedpyright", {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = {
@@ -82,6 +87,16 @@ return {
             diagnosticMode = "openFilesOnly",
             useLibraryCodeForTypes = true,
             typeCheckingMode = "basic",
+          },
+        },
+        basedpyright = {
+          analysis = {
+            inlayHints = {
+              variableTypes = true,
+              functionReturnTypes = true,
+              callArgumentNames = true,
+              genericTypes = false,
+            },
           },
         },
       },
@@ -145,7 +160,7 @@ return {
     -- Enable servers
     ------------------------------------------------------------------
     vim.lsp.enable({
-      "pyright",
+      "basedpyright",
       "ruff",
       "lua_ls",
       "zls",
