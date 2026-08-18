@@ -73,11 +73,11 @@ return {
     ------------------------------------------------------------------
     -- LSP server definitions (NEW API)
     ------------------------------------------------------------------
-    -- basedpyright (pyright fork) chosen over plain pyright: pyright's
-    -- open-source language server does not implement textDocument/inlayHint
-    -- at all (verified: server_capabilities.inlayHintProvider is nil), while
-    -- basedpyright does, which this config needs for IDE-style type hints.
-    vim.lsp.config("basedpyright", {
+    -- Note: plain pyright's open-source language server does not implement
+    -- textDocument/inlayHint (server_capabilities.inlayHintProvider is nil),
+    -- so no inlay type hints will show with this server. basedpyright is a
+    -- pyright fork that adds native inlay hint support if that's wanted later.
+    vim.lsp.config("pyright", {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = {
@@ -87,16 +87,6 @@ return {
             diagnosticMode = "openFilesOnly",
             useLibraryCodeForTypes = true,
             typeCheckingMode = "basic",
-          },
-        },
-        basedpyright = {
-          analysis = {
-            inlayHints = {
-              variableTypes = true,
-              functionReturnTypes = true,
-              callArgumentNames = true,
-              genericTypes = false,
-            },
           },
         },
       },
@@ -160,7 +150,7 @@ return {
     -- Enable servers
     ------------------------------------------------------------------
     vim.lsp.enable({
-      "basedpyright",
+      "pyright",
       "ruff",
       "lua_ls",
       "zls",
