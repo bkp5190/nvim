@@ -45,6 +45,7 @@ return {
 
       -- Inlay hints
       if client.supports_method("textDocument/inlayHint") then
+        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         map("<leader>th", function()
           vim.lsp.inlay_hint.enable(
             not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }),
@@ -121,6 +122,52 @@ return {
       },
     })
 
+    local ts_inlay_hints = {
+      includeInlayParameterNameHints = "all",
+      includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+      includeInlayFunctionParameterTypeHints = true,
+      includeInlayVariableTypeHints = true,
+      includeInlayPropertyDeclarationTypeHints = true,
+      includeInlayFunctionLikeReturnTypeHints = true,
+      includeInlayEnumMemberValueHints = true,
+    }
+
+    local global_tsserver = vim.fn.systemlist("npm root -g")[1]
+    global_tsserver = global_tsserver and (global_tsserver .. "/typescript/lib/tsserver.js") or nil
+    if global_tsserver and vim.fn.filereadable(global_tsserver) == 0 then
+      global_tsserver = nil
+    end
+
+    vim.lsp.config("ts_ls", {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      init_options = global_tsserver and { tsserver = { path = global_tsserver } } or nil,
+      settings = {
+        typescript = { inlayHints = ts_inlay_hints },
+        javascript = { inlayHints = ts_inlay_hints },
+      },
+    })
+
+    vim.lsp.config("oxlint", {
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
+
+    vim.lsp.config("cssls", {
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
+
+    vim.lsp.config("html", {
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
+
+    vim.lsp.config("jsonls", {
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
+
     vim.lsp.config("rust_analyzer", {
       capabilities = capabilities,
       on_attach = on_attach,
@@ -150,6 +197,11 @@ return {
       "lua_ls",
       "zls",
       "rust_analyzer",
+      "ts_ls",
+      "oxlint",
+      "cssls",
+      "html",
+      "jsonls",
     })
 
   end,
