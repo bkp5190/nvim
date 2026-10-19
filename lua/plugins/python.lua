@@ -2,48 +2,26 @@ return {
   -- Python-specific enhancements
   {
     "linux-cultist/venv-selector.nvim",
-    dependencies = {
-      "neovim/nvim-lspconfig",
-      "nvim-telescope/telescope.nvim",
-      "mfussenegger/nvim-dap-python",
-    },
+    ft = "python",
+    dependencies = { "neovim/nvim-lspconfig", "folke/snacks.nvim" },
     opts = {
-      name = {
-        "venv",
-        ".venv",
-        "env",
-        ".env",
+      hooks = {
+        function(python, env_type, bufnr)
+          local project = require("core.python")
+          project.select(project.root(vim.api.nvim_buf_get_name(bufnr or 0)), python)
+          return require("venv-selector.hooks").dynamic_python_lsp_hook(python, env_type, bufnr)
+        end,
       },
-      -- Auto activate virtual environment when found
-      auto_refresh = false,
-      search_venv_managers = {
-        'poetry',
-        'pipenv',
-        'uv',
+      options = {
+        picker = "snacks",
+        notify_user_on_venv_activation = true,
+        on_venv_activate_callback = function()
+          -- venv-selector overrides this resolver; restore project-aware selection.
+          require("dap-python").resolve_python = function()
+            return require("core.python").resolve()
+          end
+        end,
       },
-      search_workspace = true,
-      changed_venv = function(venv_path, venv_python)
-        local clients = vim.lsp.get_clients({ name = "pyright" })
-        for _, client in ipairs(clients) do
-          vim.lsp.stop_client(client.id, true)
-        end
-        vim.lsp.start({
-          name = "pyright",
-          cmd = { "pyright-langserver", "--stdio" },
-          root_dir = vim.fs.root(0, { "pyproject.toml", "setup.py", ".git" }),
-          settings = {
-            python = {
-              pythonPath = venv_python,
-              analysis = {
-                autoSearchPaths = true,
-                diagnosticMode = "openFilesOnly",
-                useLibraryCodeForTypes = true,
-                typeCheckingMode = "basic",
-              },
-            },
-          },
-        })
-      end,
     },
     keys = {
       { "<leader>pv", "<cmd>VenvSelect<cr>", desc = "Select Virtual Environment" },

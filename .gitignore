@@ -1,1 +1,15 @@
 noice.log
+nvim.log
+.99-tmp/
+tmp/
+*.log
+*.swp
+*.swo
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12

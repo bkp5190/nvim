@@ -7,9 +7,6 @@ vim.g.maplocalleader = " "
 -- Unmap previous space key
 map({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
--- Oil keymap
-map("n", "<leader>o", ":Neotree toggle<CR>", { desc = "Neotree Mapping", noremap = true, silent = true })
-
 -- Stop x from copying into default buffer
 map("n", "x", '"_x', { noremap = true, silent = true })
 
@@ -33,26 +30,19 @@ map("n", "<leader>v", "<C-w>v", { noremap = true, silent = true }) -- split wind
 map("n", "<leader>se", "<C-w>=", { noremap = true, silent = true }) -- make split windows equal width & height
 map("n", "<leader>xs", ":close<CR>", { noremap = true, silent = true }) -- close current split window
 
--- Telescope mappings
-map("n", "<leader>sg", ":Telescope live_grep<CR>", { desc = "Search grep", noremap = true, silent = true })
-map("n", "<leader>sf", ":Telescope find_files<CR>", { desc = "Search files", noremap = true, silent = true })
-map("n", "<leader>bd", ":Bdelete<CR>", { desc = "Bbye: delete buffer" })
-map("n", "<leader>sc", ":Telescope command_history<CR>", { desc = "Search commands", noremap = true, silent = true })
-map("n", "<leader>rs", ":Telescope resume<CR>", { desc = "Resume search", noremap = true, silent = true })
-
--- Noice mappings
-map("n", "<leader>sn", ":NoiceTelescope<CR>", { desc = "Search Noice logs", noremap = true, silent = true })
-map("n", "<leader>dn", ":NoiceDismiss<CR>", { desc = "Dismiss Noice notification", noremap = true, silent = true })
-
-map(
-	"n",
-	"<leader>b",
-	":Telescope current_buffer_fuzzy_find<CR>",
-	{ desc = "Search current buffer", noremap = true, silent = true }
-)
-
-map("n", "<leader>ql", ":Telescope quickfix<CR>", { desc = "Quickfix list", noremap = true, silent = true })
-map("n", "<leader>u", ":Telescope undo<CR>", { desc = "Undo tree", noremap = true, silent = true })
+-- Snacks owns navigation consistently; avoid mappings to absent extensions.
+map("n", "<leader>b", function()
+  require("snacks").picker.lines()
+end, { desc = "Search current buffer" })
+map("n", "<leader>bd", function()
+  require("snacks").bufdelete()
+end, { desc = "Delete buffer" })
+map("n", "<leader>dn", function()
+  require("snacks").notifier.hide()
+end, { desc = "Dismiss notifications" })
+map("n", "<leader>u", function()
+  require("snacks").picker.undo()
+end, { desc = "Undo history" })
 
 -- Barbar mappings
 map("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
@@ -70,13 +60,35 @@ map("v", ">", ">gv", { noremap = true, silent = true })
 
 -- Diagnostics
 map("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic" })
-map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
-map("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
+map("n", "]d", function()
+  vim.diagnostic.jump({ count = 1, float = true })
+end, { desc = "Next diagnostic" })
+map("n", "[d", function()
+  vim.diagnostic.jump({ count = -1, float = true })
+end, { desc = "Prev diagnostic" })
 
 -- Dap keymaps
 map(
-	"n",
-	"<leader>du",
-	'<cmd>lua require("dapui").toggle()<CR>',
-	{ desc = "Toggle DAP UI", noremap = true, silent = true }
+  "n",
+  "<leader>du",
+  '<cmd>lua require("dapui").toggle()<CR>',
+  { desc = "Toggle DAP UI", noremap = true, silent = true }
 )
+
+-- AI agents run in a real terminal and keep their normal CLI authentication.
+local function agent_terminal(command)
+  if vim.fn.executable(command) ~= 1 then
+    vim.notify(command .. " is not installed or is missing from PATH", vim.log.levels.WARN)
+    return
+  end
+  require("snacks").terminal({ command }, { cwd = vim.fn.getcwd(), win = { position = "right" } })
+end
+map("n", "<leader>ac", function()
+  agent_terminal("codex")
+end, { desc = "Codex terminal" })
+map("n", "<leader>aa", function()
+  agent_terminal("claude")
+end, { desc = "Claude terminal" })
+map("n", "<leader>at", function()
+  require("snacks").terminal()
+end, { desc = "Toggle terminal" })

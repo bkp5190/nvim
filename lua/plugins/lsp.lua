@@ -14,6 +14,9 @@ return {
     -- on_attach (buffer-local behavior)
     ------------------------------------------------------------------
     local function on_attach(client, bufnr)
+      if client.name == "ruff" then
+        client.server_capabilities.hoverProvider = false
+      end
       local map = function(keys, func, desc, modes)
         modes = modes or "n"
         vim.keymap.set(modes, keys, func, { buffer = bufnr, desc = desc })
@@ -23,14 +26,22 @@ return {
       map("gD", vim.lsp.buf.declaration, "Go to Declaration")
       map("gi", vim.lsp.buf.implementation, "Go to Implementation")
       map("gr", vim.lsp.buf.references, "Go to References")
-      map("K",  vim.lsp.buf.hover, "Hover Docs")
+      map("K", vim.lsp.buf.hover, "Hover Docs")
       map("<leader>ws", vim.lsp.buf.workspace_symbol, "Workspace Symbols")
       map("<leader>re", vim.lsp.buf.rename, "Rename")
       map("<leader>ca", vim.lsp.buf.code_action, "Code Action", { "n", "x" })
 
+      map("<leader>ci", function()
+        vim.lsp.buf.code_action({
+          context = { only = { "source.organizeImports" }, diagnostics = {} },
+          apply = true,
+        })
+      end, "Organize Imports")
+      map("<leader>cs", vim.lsp.buf.signature_help, "Function Signature", { "n", "i" })
+
       -- Document highlight
-      if client.supports_method("textDocument/documentHighlight") then
-        local group = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
+      if client:supports_method("textDocument/documentHighlight") then
+        local group = vim.api.nvim_create_augroup("lsp-highlight-" .. bufnr, { clear = true })
         vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
           buffer = bufnr,
           group = group,
@@ -44,7 +55,7 @@ return {
       end
 
       -- Inlay hints
-      if client.supports_method("textDocument/inlayHint") then
+      if client:supports_method("textDocument/inlayHint") then
         map("<leader>th", function()
           vim.lsp.inlay_hint.enable(
             not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }),
@@ -52,32 +63,32 @@ return {
           )
         end, "Toggle Inlay Hints")
       end
-
-
-      if client.name == "zls" then
-        vim.api.nvim_create_autocmd("BufWritePre", {
-          buffer = bufnr,
-          callback = function()
-            vim.lsp.buf.format({
-              async = false,
-              filter = function(c)
-                return c.name == "zls"
-              end,
-            })
-          end,
-        })
-      end
     end
+
+    -- LspAttach leaves upstream server-specific on_attach hooks intact.
+    vim.api.nvim_create_autocmd("LspAttach", {
+      group = vim.api.nvim_create_augroup("ide-lsp-attach", { clear = true }),
+      callback = function(event)
+        local client = vim.lsp.get_client_by_id(event.data.client_id)
+        if client then
+          on_attach(client, event.buf)
+        end
+      end,
+    })
+    vim.lsp.config("*", { capabilities = capabilities })
 
     ------------------------------------------------------------------
     -- LSP server definitions (NEW API)
     ------------------------------------------------------------------
     vim.lsp.config("pyright", {
-      capabilities = capabilities,
-      on_attach = on_attach,
+      before_init = function(_, config)
+        config.settings.python.pythonPath = require("core.python").resolve(config.root_dir)
+      end,
       settings = {
+        pyright = { disableOrganizeImports = true }, -- Ruff owns import sorting.
         python = {
           analysis = {
+            autoImportCompletions = true,
             autoSearchPaths = true,
             diagnosticMode = "openFilesOnly",
             useLibraryCodeForTypes = true,
@@ -87,14 +98,28 @@ return {
       },
     })
 
-    vim.lsp.config("ruff", {
-      capabilities = capabilities,
-      on_attach = on_attach,
+    vim.lsp.config("eslint", {
+      settings = { workingDirectory = { mode = "auto" }, format = false },
+    })
+
+    vim.lsp.config("vtsls", {
+      handlers = { ["textDocument/publishDiagnostics"] = require("core.imports").on_diagnostics },
+      settings = {
+        vtsls = { autoUseWorkspaceTsdk = true },
+        typescript = {
+          updateImportsOnFileMove = { enabled = "always" },
+          suggest = { completeFunctionCalls = true },
+          inlayHints = {
+            parameterNames = { enabled = "literals" },
+            parameterTypes = { enabled = true },
+            functionLikeReturnTypes = { enabled = true },
+          },
+        },
+        javascript = { updateImportsOnFileMove = { enabled = "always" } },
+      },
     })
 
     vim.lsp.config("lua_ls", {
-      capabilities = capabilities,
-      on_attach = on_attach,
       settings = {
         Lua = {
           runtime = { version = "LuaJIT" },
@@ -110,33 +135,11 @@ return {
     })
 
     vim.lsp.config("zls", {
-      capabilities = capabilities,
-      on_attach = on_attach,
       settings = {
         zls = {
           enable_inlay_hints = true,
           enable_snippets = true,
           warn_style = true,
-        },
-      },
-    })
-
-    vim.lsp.config("rust_analyzer", {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = {
-        ["rust-analyzer"] = {
-          cargo = { allFeatures = true },
-          checkOnSave = true,
-          check = { command = "clippy" },
-          procMacro = { enable = true },
-          inlayHints = {
-            bindingModeHints = { enable = true },
-            chainingHints = { enable = true },
-            closureReturnTypeHints = { enable = "always" },
-            parameterHints = { enable = true },
-            typeHints = { enable = true },
-          },
         },
       },
     })
@@ -147,11 +150,12 @@ return {
     vim.lsp.enable({
       "pyright",
       "ruff",
+      "vtsls",
+      "eslint",
       "lua_ls",
-      "zls",
-      "rust_analyzer",
     })
-
+    if vim.fn.executable("zls") == 1 then
+      vim.lsp.enable("zls")
+    end
   end,
 }
-
